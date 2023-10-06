@@ -42,8 +42,10 @@ const (
 
 	// types
 	TokenTypeTInt
+	TokenTypeTReal
 	TokenTypeTString
 	TokenTypeTBool
+	TokenTypeTDateTime
 )
 
 type Token struct {
