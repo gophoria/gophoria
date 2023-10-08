@@ -3,7 +3,7 @@ package lexer
 type TokenType int
 
 const (
-	TokenTypeInvalid TokenType = iota
+	TokenTypeIllegal TokenType = iota
 	TokenTypeEof
 
 	// identifiers + literals
@@ -27,11 +27,7 @@ const (
 	TokenTypeColon
 	TokenTypeComma
 
-	// decorators
-	TokenTypeDecId
-	TokenTypeDecNullable
-	TokenTypeDecDefault
-	TokenTypeDecRelation
+	TokenTypeDecorator
 
 	// keywords
 	TokenTypeEnum
