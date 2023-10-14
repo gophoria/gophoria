@@ -22,3 +22,7 @@ func NewAst() *Ast {
 
 	return &ast
 }
+
+func (a *Ast) AddConfig(config *Config) {
+	a.Config = append(a.Config, config)
+}
