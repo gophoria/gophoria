@@ -68,5 +68,5 @@ func NewToken(tokenType TokenType, literal string, row int, col int) *Token {
 }
 
 func (t *Token) String() string {
-	return fmt.Sprintf("type: %d, literal: \"%s\", row: %d, col: %d, }", t.Type, t.Literal, t.Row, t.Col)
+	return fmt.Sprintf("{ type: %d, literal: \"%s\", row: %d, col: %d, }", t.Type, t.Literal, t.Row, t.Col)
 }
