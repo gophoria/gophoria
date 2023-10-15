@@ -6,6 +6,13 @@ import (
 	"github.com/gophoria/gophoria/pkg/lexer"
 )
 
+type ValueType int
+
+const (
+	ValueTypeInt ValueType = iota
+	ValueTypeString
+)
+
 type Identifier struct {
 	Token      *lexer.Token
 	Identifier string
@@ -26,19 +33,30 @@ func (i *Identifier) String() string {
 
 type Value struct {
 	Token *lexer.Token
+	Type  ValueType
 	Value string
 }
 
 func NewValue(token *lexer.Token) *Value {
+	valType := ValueTypeString
+	if token.Type == lexer.TokenTypeInt {
+		valType = ValueTypeInt
+	}
+
 	v := Value{
 		Token: token,
 		Value: token.Literal,
+		Type:  valType,
 	}
 
 	return &v
 }
 
 func (v *Value) String() string {
+	if v.Type == ValueTypeString {
+		return "\"" + v.Value + "\""
+	}
+
 	return v.Value
 }
 
@@ -49,7 +67,11 @@ type AssignItem struct {
 }
 
 func NewAssignItem(token *lexer.Token, identifier *Identifier, value *Value) *AssignItem {
-	a := AssignItem{}
+	a := AssignItem{
+		Token:      token,
+		Identifier: identifier,
+		Value:      value,
+	}
 
 	return &a
 }
