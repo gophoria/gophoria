@@ -1,5 +1,9 @@
 package lexer
 
+import (
+	"fmt"
+)
+
 type TokenType int
 
 const (
@@ -61,4 +65,8 @@ func NewToken(tokenType TokenType, literal string, row int, col int) *Token {
 	}
 
 	return &token
+}
+
+func (t *Token) String() string {
+	return fmt.Sprintf("type: %d, literal: \"%s\", row: %d, col: %d, }", t.Type, t.Literal, t.Row, t.Col)
 }
