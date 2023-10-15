@@ -48,7 +48,7 @@ type AssignItem struct {
 	Value      *Value
 }
 
-func NewAssignItem(token *lexer.Token, identifier Identifier, value Value) *AssignItem {
+func NewAssignItem(token *lexer.Token, identifier *Identifier, value *Value) *AssignItem {
 	a := AssignItem{}
 
 	return &a

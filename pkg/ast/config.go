@@ -35,6 +35,6 @@ func (c *Config) String() string {
 	return sb.String()
 }
 
-func (c *Config) AddItemm(item *AssignItem) {
+func (c *Config) AddItem(item *AssignItem) {
 	c.Items = append(c.Items, item)
 }
