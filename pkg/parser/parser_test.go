@@ -58,3 +58,55 @@ db {
 		}
 	}
 }
+
+func TestEnum(t *testing.T) {
+	input := `
+enum Role {
+  admin = "admin"
+  user = "user"
+}`
+
+	expectedItems := map[string]string{
+		"admin": "admin",
+		"user":  "user",
+	}
+
+	lexer := lexer.NewLexer(input)
+	parser := parser.NewParser(lexer)
+
+	ast, err := parser.Parse()
+	if err != nil {
+		t.Fatalf("parser error: %s", err.Error())
+		return
+	}
+
+	if len(ast.Enums) != 1 {
+		t.Fatalf("expected 1 enum but found %d", len(ast.Config))
+		return
+	}
+
+	en := ast.Enums[0]
+
+	if en.Name.Identifier != "Role" {
+		t.Fatalf("expected Role but found %s", en.Name)
+		return
+	}
+
+	if len(en.Items) != 2 {
+		t.Fatalf("expected 2 items in Role but found %d", len(en.Items))
+		return
+	}
+
+	for _, item := range en.Items {
+		val, ok := expectedItems[item.Identifier.Identifier]
+		if !ok {
+			t.Fatalf("unexpected identifier %s", item.Identifier.Identifier)
+			return
+		}
+
+		if item.Value.Value != val {
+			t.Fatalf("expected value %s but got %s", val, item.Value.Value)
+			return
+		}
+	}
+}

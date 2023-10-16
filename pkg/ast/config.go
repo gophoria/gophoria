@@ -28,7 +28,7 @@ func (c *Config) String() string {
 	sb.WriteString(" {\n")
 	for _, item := range c.Items {
 		sb.WriteString(item.String())
-		sb.WriteString(",\n")
+		sb.WriteString("\n")
 	}
 	sb.WriteString(" }\n")
 

@@ -38,6 +38,13 @@ func (p *Parser) Parse() (*ast.Ast, error) {
 			}
 
 			ast.Config = append(ast.Config, cfg)
+		} else if p.curTokenIs(lexer.TokenTypeEnum) {
+			en, err := p.parseEnum()
+			if err != nil {
+				return nil, err
+			}
+
+			ast.Enums = append(ast.Enums, en)
 		}
 		p.nextToken()
 	}
@@ -78,6 +85,34 @@ func (p *Parser) parseConfig() (*ast.Config, error) {
 	}
 
 	return config, nil
+}
+
+func (p *Parser) parseEnum() (*ast.Enum, error) {
+	if !p.peekTokenIs(lexer.TokenTypeIdent) {
+		return nil, fmt.Errorf("[line: %d, col: %d]: expected identifier but found %s", p.peekToken.Row, p.peekToken.Col, p.peekToken.Literal)
+	}
+
+	ident := ast.NewIdentifier(p.peekToken)
+	enum := ast.NewEnum(p.currToken, ident)
+
+	p.nextToken()
+	p.nextToken()
+
+	if !p.curTokenIs(lexer.TokenTypeLBrace) {
+		return nil, fmt.Errorf("[line: %d, col: %d]: expected { but found %s", p.peekToken.Row, p.peekToken.Col, p.peekToken.Literal)
+	}
+	p.nextToken()
+
+	for !p.curTokenIs(lexer.TokenTypeRBrace) {
+		item, err := p.parseAssignItem()
+		if err != nil {
+			return nil, err
+		}
+
+		enum.AddItem(item)
+	}
+
+	return enum, nil
 }
 
 func (p *Parser) parseAssignItem() (*ast.AssignItem, error) {
