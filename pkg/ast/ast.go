@@ -1,9 +1,5 @@
 package ast
 
-type Enum struct {
-	Items []*AssignItem
-}
-
 type Model struct {
 }
 
