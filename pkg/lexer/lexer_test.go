@@ -27,7 +27,7 @@ model User {
 }
 
 model Post {
-  id        int       @id @default(autoincrement())
+  id        int     @id @default(autoincrement())
   title     string
   content   string  @nullable
   public    bool    @default(false)
