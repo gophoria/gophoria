@@ -110,3 +110,67 @@ enum Role {
 		}
 	}
 }
+
+func TestSimpleModel(t *testing.T) {
+	input := `
+model User {
+  id      string
+  name    string
+  surname string
+  role    Role
+  posts   Post[]
+}`
+
+	expectedItems := map[string]string{
+		"id":      "string",
+		"name":    "string",
+		"surname": "string",
+		"role":    "Role",
+		"posts":   "Post[]",
+	}
+
+	lexer := lexer.NewLexer(input)
+	parser := parser.NewParser(lexer)
+
+	ast, err := parser.Parse()
+	if err != nil {
+		t.Fatalf("parser error: %s", err.Error())
+		return
+	}
+
+	if len(ast.Models) != 1 {
+		t.Fatalf("expected 1 model but found %d", len(ast.Config))
+		return
+	}
+
+	model := ast.Models[0]
+
+	if model.Name.Identifier != "User" {
+		t.Fatalf("expected User but found %s", model.Name)
+		return
+	}
+
+	if len(model.Items) != 5 {
+		t.Fatalf("expected 5 items in Role but found %d", len(model.Items))
+		return
+	}
+
+	for _, item := range model.Items {
+		val, ok := expectedItems[item.Identifier.Identifier]
+		if !ok {
+			t.Fatalf("unexpected identifier %s", item.Identifier.Identifier)
+			return
+		}
+
+		if item.DeclarationType.String() != val {
+			t.Fatalf("expected value %s but got %s", val, item.DeclarationType)
+			return
+		}
+	}
+}
+
+func TestDecorators(t *testing.T) {
+}
+
+func TestCallableDecorators(t *testing.T) {
+}

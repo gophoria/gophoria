@@ -1,8 +1,5 @@
 package ast
 
-type Model struct {
-}
-
 type Ast struct {
 	Config []*Config
 	Enums  []*Enum
