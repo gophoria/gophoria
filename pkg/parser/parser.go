@@ -200,11 +200,38 @@ func (p *Parser) parseDeclaration() (*ast.Declaration, error) {
 
 	decl := ast.NewDeclaration(ident, declType)
 
+	for p.curTokenIs(lexer.TokenTypeDecorator) {
+		dec, err := p.parseDecorator()
+		if err != nil {
+			return nil, err
+		}
+
+		decl.Decorators = append(decl.Decorators, dec)
+	}
+
 	return decl, nil
 }
 
 func (p *Parser) parseDecorator() (*ast.Decorator, error) {
-	return nil, nil
+	if !p.curTokenIs(lexer.TokenTypeDecorator) {
+		return nil, fmt.Errorf("[line: %d, col: %d]: expected @ but found %s", p.currToken.Row, p.currToken.Col, p.currToken.Literal)
+	}
+
+	decToken := p.currToken
+	p.nextToken()
+
+	if !p.curTokenIs(lexer.TokenTypeIdent) {
+		return nil, fmt.Errorf("[line: %d, col: %d]: expected identifier but found %s", p.currToken.Row, p.currToken.Col, p.currToken.Literal)
+	}
+
+	if p.peekTokenIs(lexer.TokenTypeLParen) {
+		// TODO: Parse callable
+	}
+
+	dec := ast.NewDecorator(decToken, p.currToken)
+	p.nextToken()
+
+	return dec, nil
 }
 
 func (p *Parser) parseCallable() (*ast.Callable, error) {

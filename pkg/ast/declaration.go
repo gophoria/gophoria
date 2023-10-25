@@ -29,6 +29,7 @@ var VariableTypeMap = map[lexer.TokenType]VariableType{
 type Declaration struct {
 	Identifier      *Identifier
 	DeclarationType *DeclarationType
+	Decorators      []*Decorator
 }
 
 type DeclarationType struct {
