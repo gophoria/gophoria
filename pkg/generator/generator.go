@@ -7,5 +7,6 @@ import (
 )
 
 type Generator interface {
-	Generate(ast *ast.Ast, writer *io.Writer) string
+	GenerateAll(ast *ast.Ast, writer io.Writer) error
+	Generate(ast *ast.Ast, name string, writer io.Writer) error
 }
