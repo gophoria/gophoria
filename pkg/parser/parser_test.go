@@ -240,4 +240,75 @@ model User {
 }
 
 func TestCallableDecorators(t *testing.T) {
+	input := `
+model Post {
+  id        int     @id @default(autoincrement())
+  title     string
+  content   string  @nullable
+  public    bool    @default(false)
+  author    User    @relation(field: authorId, reference: id)
+  authorId  int
+}`
+
+	expectedItems := map[string]string{
+		"id":       "int",
+		"title":    "string",
+		"content":  "string",
+		"public":   "bool",
+		"author":   "User",
+		"authorId": "int",
+	}
+
+	expectedDecorators := map[string][]string{
+		"id":      {"@id", "@default(autoincrement())"},
+		"content": {"@nullable"},
+		"public":  {"@default(false)"},
+		"author":  {"@relation(field: authorId, reference: id)"},
+	}
+
+	lexer := lexer.NewLexer(input)
+	parser := parser.NewParser(lexer)
+
+	ast, err := parser.Parse()
+	if err != nil {
+		t.Fatalf("parser error: %s", err.Error())
+		return
+	}
+
+	if len(ast.Models) != 1 {
+		t.Fatalf("expected 1 model but found %d", len(ast.Config))
+		return
+	}
+
+	model := ast.Models[0]
+
+	if model.Name.Identifier != "Post" {
+		t.Fatalf("expected Post but found %s", model.Name)
+		return
+	}
+
+	if len(model.Items) != 6 {
+		t.Fatalf("expected 6 items in Role but found %d", len(model.Items))
+		return
+	}
+
+	for _, item := range model.Items {
+		val, ok := expectedItems[item.Identifier.Identifier]
+		if !ok {
+			t.Fatalf("unexpected identifier %s", item.Identifier.Identifier)
+			return
+		}
+
+		if item.DeclarationType.String() != val {
+			t.Fatalf("expected value %s but got %s", val, item.DeclarationType)
+			return
+		}
+
+		for i := range item.Decorators {
+			if item.Decorators[i].String() != expectedDecorators[item.Identifier.Identifier][i] {
+				t.Fatalf("expected decorator %s but got %s", expectedDecorators[item.Identifier.Identifier][i], item.Decorators[i])
+				return
+			}
+		}
+	}
 }
