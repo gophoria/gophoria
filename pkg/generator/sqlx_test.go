@@ -46,20 +46,20 @@ const (
 )
 
 type User struct {
-  id string
-  name string
-  surname string
-  role Role
-  posts []*Post
+  Id string
+  Name string
+  Surname string
+  Role Role
+  Posts []*Post
 }
 
 type Post struct {
-  id int
-  title string
-  content string
-  public bool
-  author *User
-  authorId int
+  Id int
+  Title string
+  Content string
+  Public bool
+  Author *User
+  AuthorId int
 }
 
 `

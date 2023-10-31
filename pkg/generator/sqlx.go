@@ -66,7 +66,7 @@ func (g *SqlxGenerator) generateModel(model *ast.Model) error {
 
 func (g *SqlxGenerator) generateModelItem(item *ast.Declaration) error {
 	g.writer.Write([]byte("  "))
-	g.writer.Write([]byte(item.Identifier.Identifier))
+	g.writer.Write([]byte(utils.Capitalize(item.Identifier.Identifier)))
 	g.writer.Write([]byte(" "))
 
 	switch item.DeclarationType.Type {
