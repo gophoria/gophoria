@@ -8,6 +8,9 @@ build:
 test:
 	go test ./...
 
+run:
+	go run ./...
+
 install:
 	go install
 
