@@ -103,6 +103,8 @@ func generateEnums(ast *ast.Ast) error {
 		}
 		defer f.Close()
 
+		f.Write([]byte("package db\n\n"))
+
 		gen.Generate(ast, item.Name.Identifier, f)
 	}
 
@@ -121,6 +123,8 @@ func generateModels(ast *ast.Ast) error {
 			return err
 		}
 		defer f.Close()
+
+		f.Write([]byte("package db\n\n"))
 
 		gen.Generate(ast, item.Name.Identifier, f)
 	}
