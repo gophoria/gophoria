@@ -58,6 +58,16 @@ func generateDb() error {
 		return err
 	}
 
+	err = generateEnums(ast)
+	if err != nil {
+		return err
+	}
+
+	err = generateModels(ast)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -81,10 +91,40 @@ func generateMigrations(ast *ast.Ast) error {
 }
 
 func generateEnums(ast *ast.Ast) error {
+	gen, err := createLibraryGenerator(ast)
+	if err != nil {
+		return err
+	}
+
+	for _, item := range ast.Enums {
+		f, err := os.Create(path.Join(cfg.workingDir, "db", fmt.Sprintf("%s.go", item.Name.Identifier)))
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+
+		gen.Generate(ast, item.Name.Identifier, f)
+	}
+
 	return nil
 }
 
 func generateModels(ast *ast.Ast) error {
+	gen, err := createLibraryGenerator(ast)
+	if err != nil {
+		return err
+	}
+
+	for _, item := range ast.Models {
+		f, err := os.Create(path.Join(cfg.workingDir, "db", fmt.Sprintf("%s.go", item.Name.Identifier)))
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+
+		gen.Generate(ast, item.Name.Identifier, f)
+	}
+
 	return nil
 }
 
@@ -103,4 +143,21 @@ func createMigrationGenerator(ast *ast.Ast) (generator.Generator, error) {
 	}
 
 	return nil, fmt.Errorf("unable to find db provider")
+}
+
+func createLibraryGenerator(ast *ast.Ast) (generator.Generator, error) {
+	for _, config := range ast.Config {
+		if config.Type == "db" {
+			for _, item := range config.Items {
+				if item.Identifier.Identifier == "lib" {
+					switch item.Value.Value {
+					case "sqlx":
+						return generator.NewSqlxGenerator(), nil
+					}
+				}
+			}
+		}
+	}
+
+	return nil, fmt.Errorf("unable to find db library")
 }
