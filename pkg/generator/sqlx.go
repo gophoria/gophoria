@@ -44,6 +44,32 @@ func (g *SqlxGenerator) Generate(ast *ast.Ast, name string, writer io.Writer) er
 	g.ast = ast
 	g.writer = writer
 
+	isExist := false
+
+	for _, enum := range ast.Enums {
+		if enum.Name.Identifier == name {
+			isExist = true
+			err := g.generateEnum(enum)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	for _, model := range ast.Models {
+		if model.Name.Identifier == name {
+			isExist = true
+			err := g.generateModel(model)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	if !isExist {
+		return fmt.Errorf("enum or model %s not found", name)
+	}
+
 	return nil
 }
 
