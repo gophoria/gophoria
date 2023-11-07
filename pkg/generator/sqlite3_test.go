@@ -43,7 +43,7 @@ model Post {
   name TEXT
   surname TEXT
   role TEXT
-)
+);
 
 CREATE TABLE IF NOT EXISTS Post (
   id INTEGER PRIMARY KEY
@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS Post (
   content TEXT
   public INTEGER
   authorId INTEGER
-)
+);
 
 `
 
