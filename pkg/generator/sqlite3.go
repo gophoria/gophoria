@@ -76,7 +76,7 @@ func (g *Sqlite3Generator) generateModel(model *ast.Model) error {
 		}
 	}
 
-	g.writer.Write([]byte(")\n\n"))
+	g.writer.Write([]byte(");\n\n"))
 
 	return nil
 }
