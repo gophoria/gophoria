@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path"
 
 	"github.com/gophoria/gophoria/internal/utils"
@@ -58,12 +59,23 @@ func generateDb() error {
 		return err
 	}
 
+	err = generatePrimitives(ast)
+	if err != nil {
+		return err
+	}
+
 	err = generateEnums(ast)
 	if err != nil {
 		return err
 	}
 
 	err = generateModels(ast)
+	if err != nil {
+		return err
+	}
+
+	cmd := exec.Command("gofmt", "-w", "./..")
+	err = cmd.Run()
 	if err != nil {
 		return err
 	}
@@ -84,7 +96,30 @@ func generateMigrations(ast *ast.Ast) error {
 		}
 		defer f.Close()
 
-		gen.Generate(ast, item.Name.Identifier, f)
+		err = gen.Generate(ast, item.Name.Identifier, f)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func generatePrimitives(ast *ast.Ast) error {
+	gen, err := createLibraryGenerator(ast)
+	if err != nil {
+		return nil
+	}
+
+	f, err := os.Create(path.Join(cfg.workingDir, "db", "DateTime.go"))
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	err = gen.Generate(ast, "DateTime", f)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -105,7 +140,10 @@ func generateEnums(ast *ast.Ast) error {
 
 		f.Write([]byte("package db\n\n"))
 
-		gen.Generate(ast, item.Name.Identifier, f)
+		err = gen.Generate(ast, item.Name.Identifier, f)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -126,7 +164,10 @@ func generateModels(ast *ast.Ast) error {
 
 		f.Write([]byte("package db\n\n"))
 
-		gen.Generate(ast, item.Name.Identifier, f)
+		err = gen.Generate(ast, item.Name.Identifier, f)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

@@ -46,6 +46,10 @@ func (g *SqlxGenerator) Generate(ast *ast.Ast, name string, writer io.Writer) er
 
 	isExist := false
 
+	if name == "DateTime" {
+		return g.generateDateTime(ast, writer)
+	}
+
 	for _, enum := range ast.Enums {
 		if enum.Name.Identifier == name {
 			isExist = true
@@ -173,6 +177,51 @@ func (g *SqlxGenerator) generateEnum(enum *ast.Enum) error {
 		g.writer.Write([]byte("\n"))
 	}
 	g.writer.Write([]byte(")\n\n"))
+
+	return nil
+}
+
+func (g *SqlxGenerator) generateDateTime(ast *ast.Ast, writer io.Writer) error {
+	writer.Write([]byte("package db\n\n"))
+
+	writer.Write([]byte("import (\n"))
+	writer.Write([]byte("\t\"database/sql/driver\"\n"))
+	writer.Write([]byte("\t\"fmt\"\n"))
+	writer.Write([]byte("\t\"time\"\n"))
+	writer.Write([]byte(")\n\n"))
+
+	writer.Write([]byte("type DateTime time.Time\n\n"))
+
+	writer.Write([]byte("func Now() DateTime {\n"))
+	writer.Write([]byte("\treturn DateTime(time.Now())\n"))
+	writer.Write([]byte("}\n\n"))
+
+	writer.Write([]byte("func (d DateTime) Value() (driver.Value, error) {\n"))
+	writer.Write([]byte("\tt := time.Time(d)\n"))
+	writer.Write([]byte("\treturn t.Format(time.RFC3339), nil\n"))
+	writer.Write([]byte("}\n\n"))
+
+	writer.Write([]byte("func (d *DateTime) Scan(src interface{}) error {\n"))
+	writer.Write([]byte("\tvar source string\n\n"))
+
+	writer.Write([]byte("\tswitch src.(type) {\n"))
+	writer.Write([]byte("\tcase string:\n"))
+	writer.Write([]byte("\t\tsource = src.(string)\n"))
+	writer.Write([]byte("\tcase []byte:\n"))
+	writer.Write([]byte("\t\tsource = string(src.([]byte))\n"))
+	writer.Write([]byte("\tdefault:\n"))
+	writer.Write([]byte("\t\treturn fmt.Errorf(\"incopatible type\")\n"))
+	writer.Write([]byte("\t}\n\n"))
+
+	writer.Write([]byte("\tdateTime, err := time.Parse(time.RFC3339, source)\n"))
+	writer.Write([]byte("\tif err != nil {\n"))
+	writer.Write([]byte("\t\treturn err\n"))
+	writer.Write([]byte("\t}\n\n"))
+
+	writer.Write([]byte("\t*d = DateTime(dateTime)\n\n"))
+
+	writer.Write([]byte("\treturn nil\n"))
+	writer.Write([]byte("}\n"))
 
 	return nil
 }
