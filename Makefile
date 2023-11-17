@@ -3,16 +3,16 @@ VERSION=`git describe --tags --match v[0-9]* 2> /dev/null`
 .PHONY: build test clean
 
 build:
-	go build ./...
+	go build ./cmd/gophoria
 
 test:
 	go test ./...
 
 run:
-	go run ./...
+	go run ./cmd/gophoria
 
 install:
-	go install
+	go install ./cmd/gophoria
 
 dist: dist-linux
 	rm -f gophoria
