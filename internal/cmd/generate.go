@@ -28,7 +28,7 @@ var generateCmd = &cobra.Command{
 var generateDbCommand = &cobra.Command{
 	Use:   "db",
 	Short: "Generate db",
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		err := generateDb()
 		if err != nil {
 			exitWithError(err)
@@ -74,7 +74,13 @@ func generateDb() error {
 		return err
 	}
 
-	cmd := exec.Command("gofmt", "-w", "./..")
+	cmd := exec.Command("go", "mod", "tidy")
+	err = cmd.Run()
+	if err != nil {
+		return err
+	}
+
+	cmd = exec.Command("gofmt", "-w", "./..")
 	err = cmd.Run()
 	if err != nil {
 		return err
