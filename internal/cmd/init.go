@@ -18,7 +18,7 @@ var initCfg InitConfig
 var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Init gophoria project",
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		f, err := os.Create(cfg.file)
 		if err != nil {
 			exitWithError(err)

@@ -113,7 +113,7 @@ func (g *SqlxGenerator) generateModelItem(item *ast.Declaration) error {
 		g.writer.Write([]byte("string"))
 		break
 	case ast.VariableTypeDateTime:
-		g.writer.Write([]byte("time.Time"))
+		g.writer.Write([]byte("DateTime"))
 		break
 	case ast.VariableTypeObject:
 		if g.isTypeModel(item.DeclarationType) {
