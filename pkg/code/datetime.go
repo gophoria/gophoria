@@ -1,8 +1,8 @@
 package code
 
 // DateTime file string
-var DateTime = []byte(`
-package db
+var DateTime = []byte(`package db
+
 import (
 "database/sql/driver"
 "fmt"
@@ -39,5 +39,4 @@ func (d *DateTime) Scan(src interface{}) error {
 	*d = DateTime(dateTime)
 
 	return nil
-}
-`)
+}`)
