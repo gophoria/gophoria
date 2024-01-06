@@ -9,8 +9,9 @@ import (
 )
 
 type InitConfig struct {
-	db    string
-	dbUrl string
+	db          string
+	dbUrl       string
+	withExample bool
 }
 
 var initCfg InitConfig
@@ -25,7 +26,7 @@ var initCmd = &cobra.Command{
 		}
 		defer f.Close()
 
-		utils.GenerateProject(f, initCfg.db, initCfg.dbUrl)
+		utils.GenerateProject(f, initCfg.db, initCfg.dbUrl, initCfg.withExample)
 
 		err = createDirectoryStruct()
 		if err != nil {
@@ -39,6 +40,7 @@ func init() {
 
 	initCmd.Flags().StringVar(&initCfg.db, "db", "sqlite3", "Database provider")
 	initCmd.Flags().StringVar(&initCfg.dbUrl, "dbUrl", ":memory:", "Database url")
+	initCmd.Flags().BoolVar(&initCfg.withExample, "example", false, "Example project")
 }
 
 func createDirectoryStruct() error {

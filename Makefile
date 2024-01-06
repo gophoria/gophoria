@@ -3,7 +3,7 @@ VERSION=`git describe --tags --match v[0-9]* 2> /dev/null`
 .PHONY: build test clean
 
 build:
-	go build ./cmd/gophoria
+	go build -o build/gophoria ./cmd/gophoria
 
 test:
 	go test ./...

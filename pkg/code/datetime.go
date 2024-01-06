@@ -4,9 +4,9 @@ package code
 var DateTime = []byte(`package db
 
 import (
-"database/sql/driver"
-"fmt"
-"time"
+  "database/sql/driver"
+  "fmt"
+  "time"
 )
 
 type DateTime time.Time
@@ -39,4 +39,5 @@ func (d *DateTime) Scan(src interface{}) error {
 	*d = DateTime(dateTime)
 
 	return nil
-}`)
+}
+`)
