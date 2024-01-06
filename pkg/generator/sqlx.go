@@ -183,7 +183,7 @@ func (g *SqlxGenerator) generateEnum(enum *ast.Enum) error {
 }
 
 func (g *SqlxGenerator) generateDateTime(ast *ast.Ast, writer io.Writer) error {
-	writer.Write(code.GetCodeStringAsBytes(code.DT))
+	writer.Write(code.DateTime)
 
 	return nil
 }

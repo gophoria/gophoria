@@ -1,15 +1,7 @@
 package code
 
-type Code struct {
-	CodeString string
-}
-
-func GetCodeStringAsBytes(c Code) []byte {
-	return []byte(c.CodeString)
-}
-
 // DateTime file string
-var DT = Code{CodeString: `
+var DateTime = []byte(`
 package db
 import (
 "database/sql/driver"
@@ -48,4 +40,4 @@ func (d *DateTime) Scan(src interface{}) error {
 
 	return nil
 }
-`}
+`)
