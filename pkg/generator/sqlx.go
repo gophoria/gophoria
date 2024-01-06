@@ -103,19 +103,14 @@ func (g *SqlxGenerator) generateModelItem(item *ast.Declaration) error {
 	switch item.DeclarationType.Type {
 	case ast.VariableTypeInt:
 		g.writer.Write([]byte("int"))
-		break
 	case ast.VariableTypeReal:
 		g.writer.Write([]byte("float64"))
-		break
 	case ast.VariableTypeBool:
 		g.writer.Write([]byte("bool"))
-		break
 	case ast.VariableTypeString:
 		g.writer.Write([]byte("string"))
-		break
 	case ast.VariableTypeDateTime:
 		g.writer.Write([]byte("DateTime"))
-		break
 	case ast.VariableTypeObject:
 		if g.isTypeModel(item.DeclarationType) {
 			if item.DeclarationType.IsArray {
@@ -128,7 +123,6 @@ func (g *SqlxGenerator) generateModelItem(item *ast.Declaration) error {
 		} else {
 			return fmt.Errorf("not supported type (%s) for item %s", item.DeclarationType.Name, item.Identifier.Identifier)
 		}
-		break
 	default:
 		return fmt.Errorf("not supported type (%s) for item %s", item.DeclarationType.Name, item.Identifier.Identifier)
 	}
@@ -149,10 +143,8 @@ func (g *SqlxGenerator) generateEnum(enum *ast.Enum) error {
 	switch valueType {
 	case ast.ValueTypeInt:
 		g.writer.Write([]byte(" int"))
-		break
 	case ast.ValueTypeString:
 		g.writer.Write([]byte(" string"))
-		break
 	default:
 		return fmt.Errorf("enum %s contains not supported type", enum.Name.Identifier)
 	}
