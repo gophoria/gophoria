@@ -233,8 +233,3 @@ func (g *SqlxGenerator) generateStorage(model *ast.Model) error {
 	g.writer.Write(code.GenerateStorageGetByIdMethod(model.Name.Identifier, items_store))
 	return nil
 }
-
-func (g *SqlxGenerator) generateCRUD(ast *ast.Ast, writer io.Writer) error {
-
-	return nil
-}
