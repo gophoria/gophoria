@@ -3,7 +3,6 @@ module github.com/gophoria/gophoria
 go 1.21.1
 
 require (
-	github.com/jmoiron/sqlx v1.3.5
 	github.com/spf13/cobra v1.8.0
 )
 

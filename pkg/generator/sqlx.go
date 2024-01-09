@@ -87,11 +87,7 @@ func (g *SqlxGenerator) Generate(ast *ast.Ast, name string, writer io.Writer) er
 }
 
 func (g *SqlxGenerator) generateModel(model *ast.Model) error {
-	g.writer.Write([]byte(`import (
-		
-		"github.com/jmoiron/sqlx"
-	)
-	`))
+	g.writer.Write([]byte("import (\n\"github.com/jmoiron/sqlx\"\n)\n\n"))
 
 	g.writer.Write([]byte("type "))
 	g.writer.Write([]byte(model.Name.Identifier))
@@ -219,17 +215,22 @@ func (g *SqlxGenerator) isTypeEnum(decType *ast.DeclarationType) bool {
 }
 
 func (g *SqlxGenerator) generateStorage(model *ast.Model) error {
-	var items_store []string
+	var storeItems []string
 	for _, item := range model.Items {
-		items_store = append(items_store, string(item.Identifier.Identifier))
+		if item.DeclarationType.Type == ast.VariableTypeObject {
+			if !g.isTypeEnum(item.DeclarationType) {
+				continue
+			}
+		}
+		storeItems = append(storeItems, string(item.Identifier.Identifier))
 	}
 
 	g.writer.Write(code.GenerateStorage(model.Name.Identifier))
 	g.writer.Write(code.GenerateNewStorage(model.Name.Identifier))
-	g.writer.Write(code.GenerateStorageCreateMethod(model.Name.Identifier, items_store))
-	g.writer.Write(code.GenerateStorageUpdateMethod(model.Name.Identifier, items_store))
-	g.writer.Write(code.GenerateStorageDeleteMethod(model.Name.Identifier, items_store))
+	g.writer.Write(code.GenerateStorageCreateMethod(model.Name.Identifier, storeItems))
+	g.writer.Write(code.GenerateStorageUpdateMethod(model.Name.Identifier, storeItems))
+	g.writer.Write(code.GenerateStorageDeleteMethod(model.Name.Identifier, storeItems))
 	g.writer.Write(code.GenerateStorageGetallMethod(model.Name.Identifier))
-	g.writer.Write(code.GenerateStorageGetByIdMethod(model.Name.Identifier, items_store))
+	g.writer.Write(code.GenerateStorageGetByIdMethod(model.Name.Identifier, storeItems))
 	return nil
 }
