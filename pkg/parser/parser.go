@@ -48,7 +48,7 @@ func (p *Parser) Parse() (*ast.Ast, error) {
 	ast := ast.NewAst()
 
 	for !p.curTokenIs(lexer.TokenTypeEof) {
-		if p.curTokenIs(lexer.TokenTypeDb) {
+		if p.curTokenIs(lexer.TokenTypeDb) || p.curTokenIs(lexer.TokenTypeUi) {
 			cfg, err := p.parseConfig()
 			if err != nil {
 				return nil, err

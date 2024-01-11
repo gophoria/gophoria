@@ -9,8 +9,13 @@ import (
 )
 
 type InitConfig struct {
-	db          string
-	dbUrl       string
+	dbProvider string
+	dbUrl      string
+	dbLib      string
+
+	uiLib        string
+	uiComponents string
+
 	withExample bool
 }
 
@@ -26,7 +31,16 @@ var initCmd = &cobra.Command{
 		}
 		defer f.Close()
 
-		utils.GenerateProject(f, initCfg.db, initCfg.dbUrl, initCfg.withExample)
+		utils.GenerateProject(f, utils.GenerateConfig{
+			DbProvider: initCfg.dbProvider,
+			DbUrl:      initCfg.dbUrl,
+			DbLib:      initCfg.dbLib,
+
+			UiLib:        initCfg.uiLib,
+			UiComponents: initCfg.uiComponents,
+
+			WithExample: initCfg.withExample,
+		})
 
 		err = createDirectoryStruct()
 		if err != nil {
@@ -38,8 +52,11 @@ var initCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(initCmd)
 
-	initCmd.Flags().StringVar(&initCfg.db, "db", "sqlite3", "Database provider")
+	initCmd.Flags().StringVar(&initCfg.dbProvider, "db", "sqlite3", "Database provider")
 	initCmd.Flags().StringVar(&initCfg.dbUrl, "dbUrl", ":memory:", "Database url")
+	initCmd.Flags().StringVar(&initCfg.dbLib, "dbLib", "sqlx", "Database library")
+	initCmd.Flags().StringVar(&initCfg.uiLib, "ui", "templ", "UI library")
+	initCmd.Flags().StringVar(&initCfg.uiComponents, "components", "daisyui", "UI components")
 	initCmd.Flags().BoolVar(&initCfg.withExample, "example", false, "Example project")
 }
 
@@ -49,6 +66,10 @@ func createDirectoryStruct() error {
 		return err
 	}
 	err = utils.CreateDirIfNotExists(path.Join(cfg.workingDir, "migrations"))
+	if err != nil {
+		return err
+	}
+	err = utils.CreateDirIfNotExists(path.Join(cfg.workingDir, "view"))
 	if err != nil {
 		return err
 	}

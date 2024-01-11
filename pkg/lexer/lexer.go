@@ -16,6 +16,7 @@ var keywordsMap = map[string]TokenType{
 	"enum":     TokenTypeEnum,
 	"model":    TokenTypeModel,
 	"db":       TokenTypeDb,
+	"ui":       TokenTypeUi,
 	"true":     TokenTypeTrue,
 	"false":    TokenTypeFalse,
 	"int":      TokenTypeTInt,

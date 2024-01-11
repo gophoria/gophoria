@@ -37,6 +37,7 @@ const (
 	TokenTypeEnum
 	TokenTypeModel
 	TokenTypeDb
+	TokenTypeUi
 	TokenTypeTrue
 	TokenTypeFalse
 

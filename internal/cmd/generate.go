@@ -36,11 +36,23 @@ var generateDbCommand = &cobra.Command{
 	},
 }
 
+var generateUiCommand = &cobra.Command{
+	Use:   "ui",
+	Short: "Generate ui",
+	Run: func(_ *cobra.Command, _ []string) {
+		err := generateUi()
+		if err != nil {
+			exitWithError(err)
+		}
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(generateCmd)
 
 	generateCmd.PersistentFlags().BoolVar(&generateCfg.override, "override", false, "Override files if exists")
 	generateCmd.AddCommand(generateDbCommand)
+	generateCmd.AddCommand(generateUiCommand)
 }
 
 func generateDb() error {
@@ -211,4 +223,76 @@ func createLibraryGenerator(ast *ast.Ast) (generator.Generator, error) {
 	}
 
 	return nil, fmt.Errorf("unable to find db library")
+}
+
+func generateUi() error {
+	err := createDirectoryStruct()
+	if err != nil {
+		return err
+	}
+
+	ast, err := utils.ParseFile(cfg.file)
+	if err != nil {
+		return err
+	}
+
+	err = generatePages(ast)
+	if err != nil {
+		return err
+	}
+
+	cmd := exec.Command("go", "mod", "tidy")
+	err = cmd.Run()
+	if err != nil {
+		return err
+	}
+
+	cmd = exec.Command("gofmt", "-w", "./..")
+	err = cmd.Run()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func generatePages(ast *ast.Ast) error {
+	gen, err := createPageGenerator(ast)
+	if err != nil {
+		return err
+	}
+
+	for _, item := range ast.Models {
+		f, err := os.Create(path.Join(cfg.workingDir, "view", fmt.Sprintf("%s.templ", item.Name.Identifier)))
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+
+		f.Write([]byte("package view\n\n"))
+
+		err = gen.Generate(ast, item.Name.Identifier, f)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func createPageGenerator(ast *ast.Ast) (generator.Generator, error) {
+	for _, config := range ast.Config {
+		if config.Type == "ui" {
+			for _, item := range config.Items {
+				if item.Identifier.Identifier == "components" {
+					switch item.Value.Value {
+					case "daisyui":
+						return generator.NewDaisyUiGenerator(), nil
+					}
+				}
+			}
+		}
+	}
+
+	return nil, fmt.Errorf("unable to find ui components")
 }
