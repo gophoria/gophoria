@@ -92,7 +92,7 @@ func generateDb() error {
 		return err
 	}
 
-	cmd = exec.Command("gofmt", "-w", "./..")
+	cmd = exec.Command("gofmt", "-s", "-w", ".")
 	err = cmd.Run()
 	if err != nil {
 		return err
