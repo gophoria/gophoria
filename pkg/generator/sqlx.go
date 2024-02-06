@@ -36,7 +36,7 @@ func (g *SqlxGenerator) GenerateAll(ast *ast.Ast, writer io.Writer) error {
 		if err != nil {
 			return err
 		}
-		err = g.generateStorage(model)
+		err = g.generateStore(model)
 		if err != nil {
 			return err
 		}
@@ -72,7 +72,7 @@ func (g *SqlxGenerator) Generate(ast *ast.Ast, name string, writer io.Writer) er
 			if err != nil {
 				return err
 			}
-			err = g.generateStorage(model)
+			err = g.generateStore(model)
 			if err != nil {
 				return err
 			}
@@ -214,7 +214,7 @@ func (g *SqlxGenerator) isTypeEnum(decType *ast.DeclarationType) bool {
 	return false
 }
 
-func (g *SqlxGenerator) generateStorage(model *ast.Model) error {
+func (g *SqlxGenerator) generateStore(model *ast.Model) error {
 	var storeItems []string
 	for _, item := range model.Items {
 		if item.DeclarationType.Type == ast.VariableTypeObject {
@@ -225,12 +225,12 @@ func (g *SqlxGenerator) generateStorage(model *ast.Model) error {
 		storeItems = append(storeItems, string(item.Identifier.Identifier))
 	}
 
-	g.writer.Write(code.GenerateStorage(model.Name.Identifier))
-	g.writer.Write(code.GenerateNewStorage(model.Name.Identifier))
-	g.writer.Write(code.GenerateStorageCreateMethod(model.Name.Identifier, storeItems))
-	g.writer.Write(code.GenerateStorageUpdateMethod(model.Name.Identifier, storeItems))
-	g.writer.Write(code.GenerateStorageDeleteMethod(model.Name.Identifier, storeItems))
-	g.writer.Write(code.GenerateStorageGetallMethod(model.Name.Identifier))
-	g.writer.Write(code.GenerateStorageGetByIdMethod(model.Name.Identifier, storeItems))
+	g.writer.Write(code.GenerateStore(model.Name.Identifier))
+	g.writer.Write(code.GenerateNewStore(model.Name.Identifier))
+	g.writer.Write(code.GenerateStoreCreateMethod(model.Name.Identifier, storeItems))
+	g.writer.Write(code.GenerateStoreUpdateMethod(model.Name.Identifier, storeItems))
+	g.writer.Write(code.GenerateStoreDeleteMethod(model.Name.Identifier, storeItems))
+	g.writer.Write(code.GenerateStoreGetallMethod(model.Name.Identifier))
+	g.writer.Write(code.GenerateStoreGetByIdMethod(model.Name.Identifier, storeItems))
 	return nil
 }
