@@ -39,9 +39,9 @@ func generateInsertQuery(name string, items []string) string {
 	return query
 }
 
-func GenerateStoreCreateMethod(name string, items []string) []byte {
+func GenerateStoreInsertMethod(name string, items []string) []byte {
 	query := "`" + generateInsertQuery(name, items) + "`"
-	return []byte(fmt.Sprintf(`func (s *%[1]sStore) CreateNew%[1]s(p %[1]s) error {
+	return []byte(fmt.Sprintf(`func (s *%[1]sStore) Insert(p %[1]s) error {
 	_, err := s.conn.NamedExec(%s, p)
 	
 	if err != nil {
@@ -69,7 +69,7 @@ func generateUpdateQuery(name string, id string, items []string) string {
 
 func GenerateStoreUpdateMethod(name string, items []string) []byte {
 	query := "`" + generateUpdateQuery(name, items[0], items[1:]) + "`"
-	return []byte(fmt.Sprintf(`func (s *%[1]sStore) Update%[1]s(p %[1]s) error {
+	return []byte(fmt.Sprintf(`func (s *%[1]sStore) Update(p %[1]s) error {
 	_, err := s.conn.NamedExec(%s, p)
 
 	if err != nil {
@@ -82,23 +82,31 @@ func GenerateStoreUpdateMethod(name string, items []string) []byte {
 `, name, query, items[0]))
 }
 
-func GenerateStoreDeleteMethod(name string, items []string) []byte {
-	return []byte(fmt.Sprintf(`func (s *%[1]sStore) Delete%[1]s(p %[1]s) error {
-	query := "DELETE FROM %[1]s WHERE %[2]s=:%[2]s"
-	_, err := s.conn.NamedExec(query, p)
-	
-	if err != nil {
-		return err
+func GenerateStorSaveMethod(name string, items []string) []byte {
+	query := "`" + generateUpdateQuery(name, items[0], items[1:]) + "`"
+	return []byte(fmt.Sprintf(`func (s *%[1]sStore) Save(p %[1]s) error {
+	if song.Id == "" {
+		return s.Insert(song)
 	}
 
-	return  nil
+	return s.Update(song)
+}
+
+`, name, query, items[0]))
+}
+
+func GenerateStoreDeleteMethod(name string, items []string) []byte {
+	return []byte(fmt.Sprintf(`func (s *%[1]sStore) Delete(p %[1]s) error {
+	query := "DELETE FROM %[1]s WHERE %[2]s=:%[2]s"
+	_, err := s.conn.NamedExec(query, p)
+  return err
 }
 
 	`, name, items[0]))
 }
 
-func GenerateStoreGetallMethod(name string) []byte {
-	return []byte(fmt.Sprintf(`func (s *%[1]sStore) Getall%[1]ss() ([]*%[1]s, error) {
+func GenerateStoreGetAllMethod(name string) []byte {
+	return []byte(fmt.Sprintf(`func (s *%[1]sStore) GetAll() ([]*%[1]s, error) {
 	var result []*%[1]s
 	query := "SELECT * FROM %[1]s"
 	err := s.conn.Select(&result, query)
@@ -109,10 +117,10 @@ func GenerateStoreGetallMethod(name string) []byte {
 }
 
 func GenerateStoreGetByIdMethod(name string, items []string) []byte {
-	return []byte(fmt.Sprintf(`func (s *%[1]sStore) Get%[1]sById(%[2]s int) (*%[1]s, error) {
+	return []byte(fmt.Sprintf(`func (s *%[1]sStore) GetById(%[2]s int) (*%[1]s, error) {
 	var result %[1]s
 	query := "SELECT * FROM %[1]s WHERE %[2]s=:%[2]s"
-	err := s.conn.Get(&result, query)
+	err := s.conn.Get(&result, query, p.%[2]s)
 	return  &result, err
 }
 
