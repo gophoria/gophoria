@@ -117,10 +117,10 @@ func GenerateStoreGetAllMethod(name string) []byte {
 }
 
 func GenerateStoreGetByIdMethod(name string, items []string) []byte {
-	return []byte(fmt.Sprintf(`func (s *%[1]sStore) GetById(%[2]s int) (*%[1]s, error) {
+	return []byte(fmt.Sprintf(`func (s *%[1]sStore) GetById(%[2]s string) (*%[1]s, error) {
 	var result %[1]s
-	query := "SELECT * FROM %[1]s WHERE %[2]s=:%[2]s"
-	err := s.conn.Get(&result, query, p.%[2]s)
+	query := "SELECT * FROM %[1]s WHERE %[2]s=?"
+	err := s.conn.Get(&result, query, %[2]s)
 	return  &result, err
 }
 
