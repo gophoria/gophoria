@@ -136,6 +136,9 @@ func (g *SqlxGenerator) generateModelItem(item *ast.Declaration) error {
 	default:
 		return fmt.Errorf("not supported type (%s) for item %s", item.DeclarationType.Name, item.Identifier.Identifier)
 	}
+	g.writer.Write([]byte(" `db:\""))
+	g.writer.Write([]byte(item.Identifier.Identifier))
+	g.writer.Write([]byte("\"`"))
 	g.writer.Write([]byte("\n"))
 
 	return nil
@@ -227,10 +230,10 @@ func (g *SqlxGenerator) generateStore(model *ast.Model) error {
 
 	g.writer.Write(code.GenerateStore(model.Name.Identifier))
 	g.writer.Write(code.GenerateNewStore(model.Name.Identifier))
-	g.writer.Write(code.GenerateStoreCreateMethod(model.Name.Identifier, storeItems))
+	g.writer.Write(code.GenerateStoreInsertMethod(model.Name.Identifier, storeItems))
 	g.writer.Write(code.GenerateStoreUpdateMethod(model.Name.Identifier, storeItems))
 	g.writer.Write(code.GenerateStoreDeleteMethod(model.Name.Identifier, storeItems))
-	g.writer.Write(code.GenerateStoreGetallMethod(model.Name.Identifier))
+	g.writer.Write(code.GenerateStoreGetAllMethod(model.Name.Identifier))
 	g.writer.Write(code.GenerateStoreGetByIdMethod(model.Name.Identifier, storeItems))
 	return nil
 }
