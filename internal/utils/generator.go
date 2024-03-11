@@ -3,7 +3,7 @@ package utils
 import (
 	"io"
 
-	"github.com/gophoria/gophoria/pkg/code"
+	"github.com/gophoria/gophoria/internal/code"
 )
 
 type GenerateConfig struct {

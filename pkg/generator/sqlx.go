@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/gophoria/gophoria/internal/code"
 	"github.com/gophoria/gophoria/internal/utils"
 	"github.com/gophoria/gophoria/pkg/ast"
-	"github.com/gophoria/gophoria/pkg/code"
 )
 
 type SqlxGenerator struct {
