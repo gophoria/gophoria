@@ -196,10 +196,12 @@ func createMigrationGenerator(ast *ast.Ast) (generator.Generator, error) {
 		if config.Type == "db" {
 			for _, item := range config.Items {
 				if item.Identifier.Identifier == "provider" {
-					switch item.Value.Value {
-					case "sqlite3":
-						return generator.NewSqlite3Generator(), nil
+					gen, err := generator.GetGenerator(item.Value.Value)
+					if err != nil {
+						return nil, err
 					}
+
+					return gen, nil
 				}
 			}
 		}
@@ -213,10 +215,12 @@ func createLibraryGenerator(ast *ast.Ast) (generator.Generator, error) {
 		if config.Type == "db" {
 			for _, item := range config.Items {
 				if item.Identifier.Identifier == "lib" {
-					switch item.Value.Value {
-					case "sqlx":
-						return generator.NewSqlxGenerator(), nil
+					gen, err := generator.GetGenerator(item.Value.Value)
+					if err != nil {
+						return nil, err
 					}
+
+					return gen, nil
 				}
 			}
 		}
@@ -285,10 +289,12 @@ func createPageGenerator(ast *ast.Ast) (generator.Generator, error) {
 		if config.Type == "ui" {
 			for _, item := range config.Items {
 				if item.Identifier.Identifier == "components" {
-					switch item.Value.Value {
-					case "daisyui":
-						return generator.NewDaisyUiGenerator(), nil
+					gen, err := generator.GetGenerator(item.Value.Value)
+					if err != nil {
+						return nil, err
 					}
+
+					return gen, nil
 				}
 			}
 		}

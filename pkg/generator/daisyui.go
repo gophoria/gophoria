@@ -8,6 +8,10 @@ import (
 
 type DaisyUiGenerator struct{}
 
+func init() {
+	RegisterGenerator("daisyui", NewDaisyUiGenerator())
+}
+
 func NewDaisyUiGenerator() *DaisyUiGenerator {
 	g := DaisyUiGenerator{}
 

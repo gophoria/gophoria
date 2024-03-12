@@ -14,6 +14,10 @@ type SqlxGenerator struct {
 	writer io.Writer
 }
 
+func init() {
+	RegisterGenerator("sqlx", NewSqlxGenerator())
+}
+
 func NewSqlxGenerator() *SqlxGenerator {
 	g := SqlxGenerator{}
 

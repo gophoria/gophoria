@@ -15,6 +15,10 @@ var sqlite3Types = map[ast.VariableType][]byte{
 	ast.VariableTypeDateTime: []byte("TEXT"),
 }
 
+func init() {
+	RegisterGenerator("sqlite3", NewSqlite3Generator())
+}
+
 type Sqlite3Generator struct {
 	ast    *ast.Ast
 	writer io.Writer
