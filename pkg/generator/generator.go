@@ -23,13 +23,11 @@ func GetGenerator(name string) (Generator, error) {
 	return gen, nil
 }
 
-func RegisterGenerator(name string, gen Generator) error {
+func RegisterGenerator(name string, gen Generator) {
 	_, ok := generators[name]
 	if ok {
-		return fmt.Errorf("generator %s already exists", name)
+		panic(fmt.Sprintf("generator %s already exists", name))
 	}
 
 	generators[name] = gen
-
-	return nil
 }
