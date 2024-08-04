@@ -84,8 +84,8 @@ func (g *Sqlite3Generator) generateModel(model *ast.Model, idx int) error {
 	g.writer.Write([]byte(model.Name.Token.Literal))
 	g.writer.Write([]byte(" (\n"))
 
-	for _, item := range model.Items {
-		err := g.generateItem(item)
+	for idx, item := range model.Items {
+		err := g.generateItem(item, idx == len(model.Items)-1)
 		if err != nil {
 			return err
 		}
@@ -96,7 +96,7 @@ func (g *Sqlite3Generator) generateModel(model *ast.Model, idx int) error {
 	return nil
 }
 
-func (g *Sqlite3Generator) generateItem(item *ast.Declaration) error {
+func (g *Sqlite3Generator) generateItem(item *ast.Declaration, isLast bool) error {
 	decType, ok := g.typeToSqliteType(item.DeclarationType)
 	if !ok {
 		if g.isTypeModel(item.DeclarationType) {
@@ -115,6 +115,9 @@ func (g *Sqlite3Generator) generateItem(item *ast.Declaration) error {
 		g.writer.Write([]byte(" PRIMARY KEY"))
 	}
 
+	if !isLast {
+		g.writer.Write([]byte(","))
+	}
 	g.writer.Write([]byte("\n"))
 
 	return nil
