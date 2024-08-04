@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS Post (
 	generator := generator.NewSqlite3Generator()
 
 	var buffer bytes.Buffer
-	err = generator.GenerateAll(ast, &buffer)
+	err = generator.GenerateAll(ast, nil)
 	if err != nil {
 		t.Fatalf("generator error: %s", err.Error())
 	}

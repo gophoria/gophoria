@@ -2,16 +2,20 @@ package generator
 
 import (
 	"fmt"
-	"io"
 
 	"github.com/gophoria/gophoria/pkg/ast"
 )
 
 var generators = map[string]Generator{}
 
+type GeneratorConfig struct {
+	Override   bool
+	WorkingDir string
+}
+
 type Generator interface {
-	GenerateAll(ast *ast.Ast, writer io.Writer) error
-	Generate(ast *ast.Ast, name string, writer io.Writer) error
+	GenerateAll(ast *ast.Ast, cfg *GeneratorConfig) error
+	Generate(ast *ast.Ast, cfg *GeneratorConfig, name string) error
 }
 
 func GetGenerator(name string) (Generator, error) {

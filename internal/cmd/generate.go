@@ -2,9 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"os/exec"
-	"path"
 
 	"github.com/gophoria/gophoria/internal/utils"
 	"github.com/gophoria/gophoria/pkg/ast"
@@ -86,14 +84,7 @@ func generateDb() error {
 		return err
 	}
 
-	cmd := exec.Command("go", "mod", "tidy")
-	err = cmd.Run()
-	if err != nil {
-		return err
-	}
-
-	cmd = exec.Command("gofmt", "-s", "-w", ".")
-	err = cmd.Run()
+	err = formatProject()
 	if err != nil {
 		return err
 	}
@@ -107,14 +98,10 @@ func generateMigrations(ast *ast.Ast) error {
 		return err
 	}
 
-	for idx, item := range ast.Models {
-		f, err := os.Create(path.Join(cfg.workingDir, "migrations", fmt.Sprintf("%d_%s.sql", idx+1, item.Name.Identifier)))
-		if err != nil {
-			return err
-		}
-		defer f.Close()
+	cfg := createGeneratorCfg()
 
-		err = gen.Generate(ast, item.Name.Identifier, f)
+	for _, item := range ast.Models {
+		err = gen.Generate(ast, cfg, item.Name.Identifier)
 		if err != nil {
 			return err
 		}
@@ -129,13 +116,9 @@ func generatePrimitives(ast *ast.Ast) error {
 		return nil
 	}
 
-	f, err := os.Create(path.Join(cfg.workingDir, "db", "DateTime.go"))
-	if err != nil {
-		return err
-	}
-	defer f.Close()
+	cfg := createGeneratorCfg()
 
-	err = gen.Generate(ast, "DateTime", f)
+	err = gen.Generate(ast, cfg, "DateTime")
 	if err != nil {
 		return err
 	}
@@ -149,16 +132,10 @@ func generateEnums(ast *ast.Ast) error {
 		return err
 	}
 
+	cfg := createGeneratorCfg()
+
 	for _, item := range ast.Enums {
-		f, err := os.Create(path.Join(cfg.workingDir, "db", fmt.Sprintf("%s.go", item.Name.Identifier)))
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-
-		f.Write([]byte("package db\n\n"))
-
-		err = gen.Generate(ast, item.Name.Identifier, f)
+		err = gen.Generate(ast, cfg, item.Name.Identifier)
 		if err != nil {
 			return err
 		}
@@ -173,16 +150,10 @@ func generateModels(ast *ast.Ast) error {
 		return err
 	}
 
+	cfg := createGeneratorCfg()
+
 	for _, item := range ast.Models {
-		f, err := os.Create(path.Join(cfg.workingDir, "db", fmt.Sprintf("%s.go", item.Name.Identifier)))
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-
-		f.Write([]byte("package db\n\n"))
-
-		err = gen.Generate(ast, item.Name.Identifier, f)
+		err = gen.Generate(ast, cfg, item.Name.Identifier)
 		if err != nil {
 			return err
 		}
@@ -266,16 +237,10 @@ func generatePages(ast *ast.Ast) error {
 		return err
 	}
 
+	cfg := createGeneratorCfg()
+
 	for _, item := range ast.Models {
-		f, err := os.Create(path.Join(cfg.workingDir, "view", fmt.Sprintf("%s.templ", item.Name.Identifier)))
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-
-		f.Write([]byte("package view\n\n"))
-
-		err = gen.Generate(ast, item.Name.Identifier, f)
+		err = gen.Generate(ast, cfg, item.Name.Identifier)
 		if err != nil {
 			return err
 		}
@@ -301,4 +266,27 @@ func createPageGenerator(ast *ast.Ast) (generator.Generator, error) {
 	}
 
 	return nil, fmt.Errorf("unable to find ui components")
+}
+
+func formatProject() error {
+	cmd := exec.Command("go", "mod", "tidy")
+	err := cmd.Run()
+	if err != nil {
+		return err
+	}
+
+	cmd = exec.Command("gofmt", "-s", "-w", ".")
+	err = cmd.Run()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func createGeneratorCfg() *generator.GeneratorConfig {
+	return &generator.GeneratorConfig{
+		Override:   generateCfg.override,
+		WorkingDir: cfg.workingDir,
+	}
 }

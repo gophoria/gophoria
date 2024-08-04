@@ -3,6 +3,8 @@ package generator
 import (
 	"fmt"
 	"io"
+	"os"
+	"path"
 
 	"github.com/gophoria/gophoria/pkg/ast"
 )
@@ -22,6 +24,7 @@ func init() {
 type Sqlite3Generator struct {
 	ast    *ast.Ast
 	writer io.Writer
+	cfg    *GeneratorConfig
 }
 
 func NewSqlite3Generator() *Sqlite3Generator {
@@ -30,12 +33,12 @@ func NewSqlite3Generator() *Sqlite3Generator {
 	return &g
 }
 
-func (g *Sqlite3Generator) GenerateAll(ast *ast.Ast, writer io.Writer) error {
+func (g *Sqlite3Generator) GenerateAll(ast *ast.Ast, cfg *GeneratorConfig) error {
 	g.ast = ast
-	g.writer = writer
+	g.cfg = cfg
 
-	for _, model := range ast.Models {
-		err := g.generateModel(model)
+	for idx, model := range ast.Models {
+		err := g.generateModel(model, idx)
 		if err != nil {
 			return err
 		}
@@ -44,17 +47,17 @@ func (g *Sqlite3Generator) GenerateAll(ast *ast.Ast, writer io.Writer) error {
 	return nil
 }
 
-func (g *Sqlite3Generator) Generate(ast *ast.Ast, name string, writer io.Writer) error {
+func (g *Sqlite3Generator) Generate(ast *ast.Ast, cfg *GeneratorConfig, name string) error {
 	g.ast = ast
-	g.writer = writer
+	g.cfg = cfg
 
 	isExist := false
 
-	for _, model := range ast.Models {
+	for idx, model := range ast.Models {
 		if model.Name.Identifier == name {
 			isExist = true
 
-			err := g.generateModel(model)
+			err := g.generateModel(model, idx)
 			if err != nil {
 				return err
 			}
@@ -68,7 +71,15 @@ func (g *Sqlite3Generator) Generate(ast *ast.Ast, name string, writer io.Writer)
 	return nil
 }
 
-func (g *Sqlite3Generator) generateModel(model *ast.Model) error {
+func (g *Sqlite3Generator) generateModel(model *ast.Model, idx int) error {
+	f, err := os.Create(path.Join(g.cfg.WorkingDir, "migrations", fmt.Sprintf("%d_%s.sql", idx+1, model.Name.Identifier)))
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	g.writer = f
+
 	g.writer.Write([]byte("CREATE TABLE IF NOT EXISTS "))
 	g.writer.Write([]byte(model.Name.Token.Literal))
 	g.writer.Write([]byte(" (\n"))

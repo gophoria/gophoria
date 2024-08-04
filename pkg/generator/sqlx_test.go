@@ -75,7 +75,7 @@ type Post struct {
 	generator := generator.NewSqlxGenerator()
 
 	var buffer bytes.Buffer
-	err = generator.GenerateAll(ast, &buffer)
+	err = generator.GenerateAll(ast, nil)
 	if err != nil {
 		t.Fatalf("generator error: %s", err.Error())
 	}

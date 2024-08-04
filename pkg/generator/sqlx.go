@@ -3,6 +3,8 @@ package generator
 import (
 	"fmt"
 	"io"
+	"os"
+	"path"
 
 	"github.com/gophoria/gophoria/internal/code"
 	"github.com/gophoria/gophoria/internal/utils"
@@ -12,6 +14,7 @@ import (
 type SqlxGenerator struct {
 	ast    *ast.Ast
 	writer io.Writer
+	cfg    *GeneratorConfig
 }
 
 func init() {
@@ -24,9 +27,9 @@ func NewSqlxGenerator() *SqlxGenerator {
 	return &g
 }
 
-func (g *SqlxGenerator) GenerateAll(ast *ast.Ast, writer io.Writer) error {
+func (g *SqlxGenerator) GenerateAll(ast *ast.Ast, cfg *GeneratorConfig) error {
 	g.ast = ast
-	g.writer = writer
+	g.cfg = cfg
 
 	for _, enum := range ast.Enums {
 		err := g.generateEnum(enum)
@@ -49,14 +52,14 @@ func (g *SqlxGenerator) GenerateAll(ast *ast.Ast, writer io.Writer) error {
 	return nil
 }
 
-func (g *SqlxGenerator) Generate(ast *ast.Ast, name string, writer io.Writer) error {
+func (g *SqlxGenerator) Generate(ast *ast.Ast, cfg *GeneratorConfig, name string) error {
 	g.ast = ast
-	g.writer = writer
+	g.cfg = cfg
 
 	isExist := false
 
 	if name == "DateTime" {
-		return g.generateDateTime(ast, writer)
+		return g.generateDateTime(ast, g.writer)
 	}
 
 	for _, enum := range ast.Enums {
@@ -91,6 +94,13 @@ func (g *SqlxGenerator) Generate(ast *ast.Ast, name string, writer io.Writer) er
 }
 
 func (g *SqlxGenerator) generateModel(model *ast.Model) error {
+	f, err := os.Create(path.Join(g.cfg.WorkingDir, "db", fmt.Sprintf("%s.go", model.Name.Identifier)))
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	g.writer = f
+
 	g.writer.Write([]byte("import (\n\"github.com/jmoiron/sqlx\"\n)\n\n"))
 
 	g.writer.Write([]byte("type "))
@@ -152,6 +162,15 @@ func (g *SqlxGenerator) generateEnum(enum *ast.Enum) error {
 	if len(enum.Items) == 0 {
 		return fmt.Errorf("enum %s is empty", enum.Name.Identifier)
 	}
+
+	f, err := os.Create(path.Join(g.cfg.WorkingDir, "db", fmt.Sprintf("%s.go", enum.Name.Identifier)))
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	g.writer = f
+
+	g.writer.Write([]byte("package db\n\n"))
 
 	g.writer.Write([]byte("type "))
 	g.writer.Write([]byte(enum.Name.Identifier))
