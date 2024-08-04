@@ -187,14 +187,12 @@ func (g *SqlxGenerator) generateEnum(enum *ast.Enum) error {
 	g.writer.Write([]byte("\n\n"))
 
 	g.writer.Write([]byte("const (\n"))
-	for idx, item := range enum.Items {
+	for _, item := range enum.Items {
 		g.writer.Write([]byte("  "))
 		g.writer.Write([]byte(enum.Name.Identifier))
 		g.writer.Write([]byte(utils.Capitalize(item.Identifier.Identifier)))
-		if idx == 0 {
-			g.writer.Write([]byte(" "))
-			g.writer.Write([]byte(enum.Name.Identifier))
-		}
+		g.writer.Write([]byte(" "))
+		g.writer.Write([]byte(enum.Name.Identifier))
 		g.writer.Write([]byte(" = "))
 		if valueType == ast.ValueTypeString {
 			g.writer.Write([]byte("\""))
