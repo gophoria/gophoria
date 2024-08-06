@@ -258,3 +258,147 @@ func (g *SqlxGenerator) generateStore(model *ast.Model) error {
 	g.writer.Write(code.GenerateStoreGetByIdMethod(model.Name.Identifier, storeItems))
 	return nil
 }
+
+func (g *SqlxGenerator) generateStoreNewMethod(model *ast.Model) error {
+	code := fmt.Sprintf(`func New%[1]sStore(conn *sqlx.DB) *%[1]sStore {
+	return &%[1]sStore{conn: conn}
+}
+`, model.Name.Identifier)
+
+	g.writer.Write([]byte(code))
+	return nil
+}
+
+func (g *SqlxGenerator) generateStoreInsertMethod(model *ast.Model) error {
+	query := ""
+	queryVar := ""
+
+	for _, item := range model.Items {
+		if item.DeclarationType.Type == ast.VariableTypeObject {
+			if !g.isTypeEnum(item.DeclarationType) {
+				continue
+			}
+		}
+
+		if query != "" {
+			query += ",\n"
+			queryVar += ",\n:"
+		}
+
+		query += item.Identifier.Identifier
+		queryVar += ":" + item.Identifier.Identifier
+	}
+
+	code := fmt.Sprintf(`func (s *%[1]sStore) Insert(p *%[1]s) error {
+  if p.Id == "" {
+    p.Id = uuid.NewString()
+  }
+
+	_, err := s.conn.NamedExec("INSERT INTO %[1]s (
+    %s
+  ) VALUES (
+    %s
+  )", p)
+	
+	if err != nil {
+		return err
+	}
+
+	return  nil
+}
+`, model.Name.Identifier, query, queryVar)
+
+	g.writer.Write([]byte(code))
+	return nil
+}
+
+func (g *SqlxGenerator) generateStoreUpdateMethod(model *ast.Model) error {
+	query := ""
+	queryVar := ""
+
+	for _, item := range model.Items {
+		if item.DeclarationType.Type == ast.VariableTypeObject {
+			if !g.isTypeEnum(item.DeclarationType) {
+				continue
+			}
+		}
+
+		if query != "" {
+			query += ",\n"
+		}
+
+		query += item.Identifier.Identifier + "=" + item.Identifier.Identifier
+	}
+
+	code := fmt.Sprintf(`func (s *%[1]sStore) Update(p *%[1]s) error {
+  if p.Id == "" {
+    p.Id = uuid.NewString()
+  }
+
+	_, err := s.conn.NamedExec("UPDATE %[1]s SET
+    %s
+  WHERE id=:id", p)
+	
+	if err != nil {
+		return err
+	}
+
+	return  nil
+}
+`, model.Name.Identifier, query, queryVar)
+
+	g.writer.Write([]byte(code))
+	return nil
+}
+
+func (g *SqlxGenerator) generateStoreSaveMethod(model *ast.Model) error {
+	code := fmt.Sprintf(`func (s *%[1]sStore) Save(p *%[1]s) error {
+  if p.Id == "" {
+    return p.Insert()
+  } else {
+    return p.Update()
+  }
+}
+`, model.Name.Identifier)
+
+	g.writer.Write([]byte(code))
+	return nil
+}
+
+func (g *SqlxGenerator) generateStoreDeleteMethod(model *ast.Model) error {
+	code := fmt.Sprintf(`func (s *%[1]sStore) Delete(p *%[1]s) error {
+	query := "DELETE FROM %[1]s WHERE id=:id"
+	_, err := s.conn.NamedExec(query, p)
+  return err
+}
+`, model.Name.Identifier)
+
+	g.writer.Write([]byte(code))
+	return nil
+}
+
+func (g *SqlxGenerator) generateStoreGetAllMethod(model *ast.Model) error {
+	code := fmt.Sprintf(`func (s *%[1]sStore) GetAll() ([]*%[1]s, error) {
+	var result []*%[1]s
+	query := "SELECT * FROM %[1]s"
+	err := s.conn.Select(&result, query)
+	return result, err
+}
+`, model.Name.Identifier)
+
+	g.writer.Write([]byte(code))
+	return nil
+}
+
+func (g *SqlxGenerator) generateStoreGetbyIdMethod(model *ast.Model) error {
+	code := fmt.Sprintf(`func (s *%[1]sStore) GetById(id string) (*%[1]s, error) {
+	var result %[1]s
+	query := "SELECT * FROM %[1]s WHERE id=?"
+	err := s.conn.Get(&result, query, id)
+	return  &result, err
+}
+`, model.Name.Identifier)
+
+	g.writer.Write([]byte(code))
+	return nil
+}
