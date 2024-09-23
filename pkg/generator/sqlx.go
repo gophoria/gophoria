@@ -101,6 +101,8 @@ func (g *SqlxGenerator) generateModel(model *ast.Model) error {
 	defer f.Close()
 	g.writer = f
 
+	g.writer.Write([]byte("package db\n\n"))
+
 	g.writer.Write([]byte("import (\n\"github.com/jmoiron/sqlx\"\n)\n\n"))
 
 	g.writer.Write([]byte("type "))
@@ -245,15 +247,11 @@ func (g *SqlxGenerator) isTypeEnum(decType *ast.DeclarationType) bool {
 }
 
 func (g *SqlxGenerator) generateStore(model *ast.Model) error {
-	var storeItems []string
-	for _, item := range model.Items {
-		if item.DeclarationType.Type == ast.VariableTypeObject {
-			if !g.isTypeEnum(item.DeclarationType) {
-				continue
-			}
-		}
-		storeItems = append(storeItems, string(item.Identifier.Identifier))
-	}
+	g.writer.Write([]byte(fmt.Sprintf(`type %sStore struct {
+  conn *sqlx.DB
+}
+
+`, model.Name.Identifier)))
 
 	g.generateStoreNewMethod(model)
 	g.generateStoreInsertMethod(model)
