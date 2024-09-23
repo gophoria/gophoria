@@ -209,7 +209,13 @@ func (g *SqlxGenerator) generateEnum(enum *ast.Enum) error {
 }
 
 func (g *SqlxGenerator) generateDateTime(ast *ast.Ast, writer io.Writer) error {
-	writer.Write(code.DateTime)
+	f, err := os.Create(path.Join(g.cfg.WorkingDir, "db", "DateTime.go"))
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	f.Write(code.DateTime)
 
 	return nil
 }
@@ -249,13 +255,12 @@ func (g *SqlxGenerator) generateStore(model *ast.Model) error {
 		storeItems = append(storeItems, string(item.Identifier.Identifier))
 	}
 
-	g.writer.Write(code.GenerateStore(model.Name.Identifier))
-	g.writer.Write(code.GenerateNewStore(model.Name.Identifier))
-	g.writer.Write(code.GenerateStoreInsertMethod(model.Name.Identifier, storeItems))
-	g.writer.Write(code.GenerateStoreUpdateMethod(model.Name.Identifier, storeItems))
-	g.writer.Write(code.GenerateStoreDeleteMethod(model.Name.Identifier, storeItems))
-	g.writer.Write(code.GenerateStoreGetAllMethod(model.Name.Identifier))
-	g.writer.Write(code.GenerateStoreGetByIdMethod(model.Name.Identifier, storeItems))
+	g.generateStoreNewMethod(model)
+	g.generateStoreInsertMethod(model)
+	g.generateStoreUpdateMethod(model)
+	g.generateStoreDeleteMethod(model)
+	g.generateStoreGetAllMethod(model)
+	g.generateStoreGetByIdMethod(model)
 	return nil
 }
 
@@ -390,7 +395,7 @@ func (g *SqlxGenerator) generateStoreGetAllMethod(model *ast.Model) error {
 	return nil
 }
 
-func (g *SqlxGenerator) generateStoreGetbyIdMethod(model *ast.Model) error {
+func (g *SqlxGenerator) generateStoreGetByIdMethod(model *ast.Model) error {
 	code := fmt.Sprintf(`func (s *%[1]sStore) GetById(id string) (*%[1]s, error) {
 	var result %[1]s
 	query := "SELECT * FROM %[1]s WHERE id=?"
