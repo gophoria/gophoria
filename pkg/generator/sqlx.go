@@ -39,7 +39,14 @@ func (g *SqlxGenerator) GenerateAll(ast *ast.Ast, cfg *GeneratorConfig) error {
 	}
 
 	for _, model := range ast.Models {
-		err := g.generateModel(model)
+		f, err := os.Create(path.Join(g.cfg.WorkingDir, "db", fmt.Sprintf("%s.go", model.Name.Identifier)))
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		g.writer = f
+
+		err = g.generateModel(model)
 		if err != nil {
 			return err
 		}
@@ -74,8 +81,16 @@ func (g *SqlxGenerator) Generate(ast *ast.Ast, cfg *GeneratorConfig, name string
 
 	for _, model := range ast.Models {
 		if model.Name.Identifier == name {
+			f, err := os.Create(path.Join(g.cfg.WorkingDir, "db", fmt.Sprintf("%s.go", model.Name.Identifier)))
+			if err != nil {
+				return err
+			}
+			defer f.Close()
+			g.writer = f
+
 			isExist = true
-			err := g.generateModel(model)
+
+			err = g.generateModel(model)
 			if err != nil {
 				return err
 			}
@@ -94,13 +109,6 @@ func (g *SqlxGenerator) Generate(ast *ast.Ast, cfg *GeneratorConfig, name string
 }
 
 func (g *SqlxGenerator) generateModel(model *ast.Model) error {
-	f, err := os.Create(path.Join(g.cfg.WorkingDir, "db", fmt.Sprintf("%s.go", model.Name.Identifier)))
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-	g.writer = f
-
 	g.writer.Write([]byte("package db\n\n"))
 
 	g.writer.Write([]byte("import (\n\"github.com/jmoiron/sqlx\"\n)\n\n"))
