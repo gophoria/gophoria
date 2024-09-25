@@ -324,7 +324,6 @@ func (g *SqlxGenerator) generateStoreInsertMethod(model *ast.Model) error {
 
 func (g *SqlxGenerator) generateStoreUpdateMethod(model *ast.Model) error {
 	query := ""
-	queryVar := ""
 
 	for _, item := range model.Items {
 		if item.DeclarationType.Type == ast.VariableTypeObject {
@@ -337,27 +336,19 @@ func (g *SqlxGenerator) generateStoreUpdateMethod(model *ast.Model) error {
 			query += ",\n"
 		}
 
-		query += item.Identifier.Identifier + "=" + item.Identifier.Identifier
+		query += "\t\t" + item.Identifier.Identifier + "=" + item.Identifier.Identifier
 	}
 
-	code := fmt.Sprintf(`func (s *%[1]sStore) Update(p *%[1]s) error {
-  if p.Id == "" {
-    p.Id = uuid.NewString()
-  }
+	g.writer.Write([]byte(fmt.Sprintf("func (s *%[1]sStore) Update(m *%[1]s) error {\n", model.Name.Identifier)))
+	g.writer.Write([]byte(fmt.Sprintf("\t_, err := s.conn.NamedExec(`UPDATE %[1]s SET\n", model.Name.Identifier)))
+	g.writer.Write([]byte(query))
+	g.writer.Write([]byte("\n\tWHERE id=:id`, m)\n\n"))
+	g.writer.Write([]byte("\tif err != nil {\n"))
+	g.writer.Write([]byte("\t\treturn err\n"))
+	g.writer.Write([]byte("\t}\n\n"))
+	g.writer.Write([]byte("\treturn nil\n"))
+	g.writer.Write([]byte("}\n\n"))
 
-	_, err := s.conn.NamedExec("UPDATE %[1]s SET
-    %s
-  WHERE id=:id", p)
-	
-	if err != nil {
-		return err
-	}
-
-	return  nil
-}
-`, model.Name.Identifier, query, queryVar)
-
-	g.writer.Write([]byte(code))
 	return nil
 }
 
