@@ -274,6 +274,7 @@ func (g *SqlxGenerator) generateStoreNewMethod(model *ast.Model) error {
 	code := fmt.Sprintf(`func New%[1]sStore(conn *sqlx.DB) *%[1]sStore {
 	return &%[1]sStore{conn: conn}
 }
+
 `, model.Name.Identifier)
 
 	g.writer.Write([]byte(code))
@@ -296,30 +297,28 @@ func (g *SqlxGenerator) generateStoreInsertMethod(model *ast.Model) error {
 			queryVar += ",\n:"
 		}
 
-		query += item.Identifier.Identifier
-		queryVar += ":" + item.Identifier.Identifier
+		query += "\t\t" + item.Identifier.Identifier
+		queryVar += "\t\t:" + item.Identifier.Identifier
 	}
 
-	code := fmt.Sprintf(`func (s *%[1]sStore) Insert(p *%[1]s) error {
-  if p.Id == "" {
-    p.Id = uuid.NewString()
-  }
+	g.writer.Write([]byte(fmt.Sprintf("func (s *%[1]sStore) Insert(m *%[1]s) error {\n", model.Name.Identifier)))
+	g.writer.Write([]byte("\tif p.Id == \"\" {\n"))
+	g.writer.Write([]byte("\t\tm.Id = uuid.NewString()\n"))
+	g.writer.Write([]byte("\t}\n\n"))
 
-	_, err := s.conn.NamedExec("INSERT INTO %[1]s (
-    %s
-  ) VALUES (
-    %s
-  )", p)
-	
-	if err != nil {
-		return err
-	}
+	g.writer.Write([]byte(fmt.Sprintf("\t_, err := s.conn.NamedExec(`INSERT INTO %[1]s (\n", model.Name.Identifier)))
+	g.writer.Write([]byte(query))
+	g.writer.Write([]byte("\n\t) VALUES (\n"))
+	g.writer.Write([]byte(query))
+	g.writer.Write([]byte("\n\t)`, m)\n\n"))
 
-	return  nil
-}
-`, model.Name.Identifier, query, queryVar)
+	g.writer.Write([]byte("\tif err != nil {\n"))
+	g.writer.Write([]byte("\t\treturn err\n"))
+	g.writer.Write([]byte("\t}\n\n"))
 
-	g.writer.Write([]byte(code))
+	g.writer.Write([]byte("\treturn nil\n"))
+	g.writer.Write([]byte("}\n\n"))
+
 	return nil
 }
 
