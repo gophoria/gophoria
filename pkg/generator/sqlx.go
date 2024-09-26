@@ -111,7 +111,12 @@ func (g *SqlxGenerator) Generate(ast *ast.Ast, cfg *GeneratorConfig, name string
 func (g *SqlxGenerator) generateModel(model *ast.Model) error {
 	g.writer.Write([]byte("package db\n\n"))
 
-	g.writer.Write([]byte("import (\n\"github.com/jmoiron/sqlx\"\n)\n\n"))
+	g.writer.Write([]byte(`import (
+  "github.com/jmoiron/sqlx"
+	"github.com/google/uuid"
+)
+
+`))
 
 	g.writer.Write([]byte("type "))
 	g.writer.Write([]byte(model.Name.Identifier))
@@ -302,7 +307,7 @@ func (g *SqlxGenerator) generateStoreInsertMethod(model *ast.Model) error {
 	}
 
 	g.writer.Write([]byte(fmt.Sprintf("func (s *%[1]sStore) Insert(m *%[1]s) error {\n", model.Name.Identifier)))
-	g.writer.Write([]byte("\tif p.Id == \"\" {\n"))
+	g.writer.Write([]byte("\tif m.Id == \"\" {\n"))
 	g.writer.Write([]byte("\t\tm.Id = uuid.NewString()\n"))
 	g.writer.Write([]byte("\t}\n\n"))
 
@@ -367,11 +372,17 @@ func (g *SqlxGenerator) generateStoreSaveMethod(model *ast.Model) error {
 }
 
 func (g *SqlxGenerator) generateStoreDeleteMethod(model *ast.Model) error {
-	code := fmt.Sprintf(`func (s *%[1]sStore) Delete(p *%[1]s) error {
+	code := fmt.Sprintf(`func (s *%[1]sStore) Delete(m *%[1]s) error {
 	query := "DELETE FROM %[1]s WHERE id=:id"
-	_, err := s.conn.NamedExec(query, p)
-  return err
+
+	_, err := s.conn.NamedExec(query, m)
+  if err != nil {
+    return err
+  }
+
+  return nil
 }
+
 `, model.Name.Identifier)
 
 	g.writer.Write([]byte(code))
@@ -382,9 +393,15 @@ func (g *SqlxGenerator) generateStoreGetAllMethod(model *ast.Model) error {
 	code := fmt.Sprintf(`func (s *%[1]sStore) GetAll() ([]*%[1]s, error) {
 	var result []*%[1]s
 	query := "SELECT * FROM %[1]s"
+
 	err := s.conn.Select(&result, query)
-	return result, err
+  if err != nil {
+    return result, err
+  }
+
+	return result, nil
 }
+
 `, model.Name.Identifier)
 
 	g.writer.Write([]byte(code))
@@ -395,8 +412,13 @@ func (g *SqlxGenerator) generateStoreGetByIdMethod(model *ast.Model) error {
 	code := fmt.Sprintf(`func (s *%[1]sStore) GetById(id string) (*%[1]s, error) {
 	var result %[1]s
 	query := "SELECT * FROM %[1]s WHERE id=?"
+
 	err := s.conn.Get(&result, query, id)
-	return  &result, err
+  if err != nil {
+    return nil, err
+  }
+
+	return  &result, nil
 }
 `, model.Name.Identifier)
 
