@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"os"
-	"path"
 
 	"github.com/gophoria/gophoria/internal/utils"
 	"github.com/spf13/cobra"
@@ -58,21 +57,4 @@ func init() {
 	initCmd.Flags().StringVar(&initCfg.uiLib, "ui", "templ", "UI library")
 	initCmd.Flags().StringVar(&initCfg.uiComponents, "components", "daisyui", "UI components")
 	initCmd.Flags().BoolVar(&initCfg.withExample, "example", false, "Example project")
-}
-
-func createDirectoryStruct() error {
-	err := utils.CreateDirIfNotExists(path.Join(cfg.workingDir, "db"))
-	if err != nil {
-		return err
-	}
-	err = utils.CreateDirIfNotExists(path.Join(cfg.workingDir, "migrations"))
-	if err != nil {
-		return err
-	}
-	err = utils.CreateDirIfNotExists(path.Join(cfg.workingDir, "view"))
-	if err != nil {
-		return err
-	}
-
-	return nil
 }

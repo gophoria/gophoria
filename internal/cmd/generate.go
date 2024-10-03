@@ -54,11 +54,6 @@ func init() {
 }
 
 func generateDb() error {
-	err := createDirectoryStruct()
-	if err != nil {
-		return err
-	}
-
 	ast, err := utils.ParseFile(cfg.file)
 	if err != nil {
 		return err
@@ -201,11 +196,6 @@ func createLibraryGenerator(ast *ast.Ast) (generator.Generator, error) {
 }
 
 func generateUi() error {
-	err := createDirectoryStruct()
-	if err != nil {
-		return err
-	}
-
 	ast, err := utils.ParseFile(cfg.file)
 	if err != nil {
 		return err
