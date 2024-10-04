@@ -258,7 +258,7 @@ func formatProject() error {
 		return err
 	}
 
-	cmd = exec.Command("gofmt", "-s", "-w", ".")
+	cmd = exec.Command("gofmt", "-s", "-w", "./..")
 	err = cmd.Run()
 	if err != nil {
 		return err
