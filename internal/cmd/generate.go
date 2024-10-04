@@ -206,14 +206,7 @@ func generateUi() error {
 		return err
 	}
 
-	cmd := exec.Command("go", "mod", "tidy")
-	err = cmd.Run()
-	if err != nil {
-		return err
-	}
-
-	cmd = exec.Command("gofmt", "-w", "./..")
-	err = cmd.Run()
+	err = formatProject()
 	if err != nil {
 		return err
 	}
