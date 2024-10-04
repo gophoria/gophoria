@@ -31,6 +31,11 @@ func (g *SqlxGenerator) GenerateAll(ast *ast.Ast, cfg *GeneratorConfig) error {
 	g.ast = ast
 	g.cfg = cfg
 
+	err := os.MkdirAll(path.Join(g.cfg.WorkingDir, "db"), 0755)
+	if err != nil {
+		return err
+	}
+
 	for _, enum := range ast.Enums {
 		err := g.generateEnum(enum)
 		if err != nil {
@@ -62,6 +67,11 @@ func (g *SqlxGenerator) GenerateAll(ast *ast.Ast, cfg *GeneratorConfig) error {
 func (g *SqlxGenerator) Generate(ast *ast.Ast, cfg *GeneratorConfig, name string) error {
 	g.ast = ast
 	g.cfg = cfg
+
+	err := os.MkdirAll(path.Join(g.cfg.WorkingDir, "db"), 0755)
+	if err != nil {
+		return err
+	}
 
 	isExist := false
 

@@ -37,6 +37,11 @@ func (g *Sqlite3Generator) GenerateAll(ast *ast.Ast, cfg *GeneratorConfig) error
 	g.ast = ast
 	g.cfg = cfg
 
+	err := os.MkdirAll(path.Join(g.cfg.WorkingDir, "migrations"), 0755)
+	if err != nil {
+		return err
+	}
+
 	for idx, model := range ast.Models {
 		err := g.generateModel(model, idx)
 		if err != nil {
@@ -50,6 +55,14 @@ func (g *Sqlite3Generator) GenerateAll(ast *ast.Ast, cfg *GeneratorConfig) error
 func (g *Sqlite3Generator) Generate(ast *ast.Ast, cfg *GeneratorConfig, name string) error {
 	g.ast = ast
 	g.cfg = cfg
+
+	err := os.MkdirAll(path.Join(g.cfg.WorkingDir, "migrations"), 0755)
+	if err != nil {
+		return err
+	}
+	if err != nil {
+		return err
+	}
 
 	isExist := false
 
