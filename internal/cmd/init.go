@@ -40,11 +40,6 @@ var initCmd = &cobra.Command{
 
 			WithExample: initCfg.withExample,
 		})
-
-		err = createDirectoryStruct()
-		if err != nil {
-			exitWithError(err)
-		}
 	},
 }
 
